@@ -1,4 +1,10 @@
-struct Tile {
-    id: u32,          // pokemon type (e.g., Pikachu = 25)
-    grid_pos: (usize, usize),
+use bevy::prelude::*;
+
+#[allow(dead_code)]
+#[derive(Component)]
+pub struct Tile {
+    pub id: u32,
+    pub grid_pos: (usize, usize),
+    pub name: String,
+    pub revealed: bool,
 }
