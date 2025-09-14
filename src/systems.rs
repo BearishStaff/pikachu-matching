@@ -1,4 +1,5 @@
-use bevy::{prelude::*};
+use bevy::audio::*;
+use bevy::prelude::*;
 
 use crate::components::Tile;
 use crate::resources::Board;
@@ -62,16 +63,21 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 pub fn tile_click_system(
-    _commands: Commands,
-    windows: Query<&mut Window>,            
+    mut commands: Commands,
+    windows: Query<&mut Window>,
     mouse_input: Res<ButtonInput<MouseButton>>,
     mut selection: ResMut<Selection>,
     mut query: Query<(Entity, &mut Tile, &Transform, &Sprite)>,
+    asset_server: Res<AssetServer>,
 ) {
     let window = windows.get_single().unwrap();
 
     if mouse_input.just_pressed(MouseButton::Left) {
         if let Some(cursor_pos) = window.cursor_position() {
+            commands.spawn(AudioBundle {
+                            source: asset_server.load("sounds/select.ogg"),
+                            settings: PlaybackSettings::ONCE,
+                        });
             for (entity, mut tile, transform, sprite) in query.iter_mut() {
                 let sprite_size = sprite.custom_size.unwrap_or(Vec2::new(64.0, 64.0));
                 let min_x = transform.translation.x - sprite_size.x / 2.0;
@@ -79,8 +85,11 @@ pub fn tile_click_system(
                 let min_y = transform.translation.y - sprite_size.y / 2.0;
                 let max_y = transform.translation.y + sprite_size.y / 2.0;
 
-                if cursor_pos.x >= min_x && cursor_pos.x <= max_x &&
-                   cursor_pos.y >= min_y && cursor_pos.y <= max_y {
+                if cursor_pos.x >= min_x
+                    && cursor_pos.x <= max_x
+                    && cursor_pos.y >= min_y
+                    && cursor_pos.y <= max_y
+                {
                     if !tile.revealed {
                         tile.revealed = true;
 
